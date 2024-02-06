@@ -1862,7 +1862,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@bccampus/mantinex-composite-docs@workspace:docs"
   dependencies:
-    "@bccampus/mantinex-composite": "workspace:*"
+    "@bccampus/mantinex-composite": "workspace:^"
     "@mantine/core": "npm:7.5.1"
     "@mantine/hooks": "npm:7.5.1"
     "@mantinex/demo": "npm:^1.1.1"
@@ -1892,7 +1892,7 @@ __metadata:
   languageName: unknown
   linkType: soft
 
-"@bccampus/mantinex-composite@workspace:*, @bccampus/mantinex-composite@workspace:package":
+"@bccampus/mantinex-composite@workspace:^, @bccampus/mantinex-composite@workspace:package":
   version: 0.0.0-use.local
   resolution: "@bccampus/mantinex-composite@workspace:package"
   peerDependencies:

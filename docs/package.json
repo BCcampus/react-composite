@@ -8,7 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
-    "@bccampus/mantinex-composite": "workspace:*",
+    "@bccampus/mantinex-composite": "workspace:^",
     "@mantine/core": "7.5.1",
     "@mantine/hooks": "7.5.1",
     "@mantinex/demo": "^1.1.1",
