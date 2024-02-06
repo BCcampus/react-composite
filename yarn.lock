@@ -1858,40 +1858,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@bccampus/mantinex-composite-docs@workspace:docs":
-  version: 0.0.0-use.local
-  resolution: "@bccampus/mantinex-composite-docs@workspace:docs"
-  dependencies:
-    "@bccampus/mantinex-composite": "workspace:^"
-    "@mantine/core": "npm:7.5.1"
-    "@mantine/hooks": "npm:7.5.1"
-    "@mantinex/demo": "npm:^1.1.1"
-    "@mantinex/dev-icons": "npm:^1.0.2"
-    "@mantinex/mantine-header": "npm:^1.0.2"
-    "@mantinex/mantine-logo": "npm:^1.0.1"
-    "@mantinex/mantine-meta": "npm:^1.0.2"
-    "@mantinex/shiki": "npm:^1.0.3"
-    "@mdx-js/loader": "npm:^3.0.0"
-    "@mdx-js/react": "npm:^3.0.0"
-    "@next/mdx": "npm:^14.1.0"
-    "@tabler/icons-react": "npm:^2.47.0"
-    "@types/mdx": "npm:^2.0.11"
-    "@types/node": "npm:^20.11.16"
-    "@types/react": "npm:^18.2.54"
-    "@types/react-dom": "npm:^18.2.18"
-    next: "npm:14.1.0"
-    react: "npm:18.2.0"
-    react-dom: "npm:18.2.0"
-    remark-slug: "npm:^7.0.1"
-    shikiji: "npm:^0.7.4"
-    type-fest: "npm:^4.10.2"
-    typescript: "npm:5.3.3"
-  peerDependenciesMeta:
-    webpack:
-      optional: true
-  languageName: unknown
-  linkType: soft
-
 "@bccampus/mantinex-composite@workspace:^, @bccampus/mantinex-composite@workspace:package":
   version: 0.0.0-use.local
   resolution: "@bccampus/mantinex-composite@workspace:package"
@@ -12515,81 +12481,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"m-90d2bb8@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "m-90d2bb8@workspace:."
-  dependencies:
-    "@mantine-tests/core": "npm:^1.0.1"
-    "@mantine/core": "npm:7.5.1"
-    "@mantine/hooks": "npm:7.5.1"
-    "@rollup/plugin-node-resolve": "npm:^15.2.3"
-    "@rollup/plugin-replace": "npm:^5.0.5"
-    "@storybook/addon-essentials": "npm:^7.6.12"
-    "@storybook/blocks": "npm:^7.6.12"
-    "@storybook/react": "npm:^7.6.12"
-    "@storybook/react-vite": "npm:^7.6.12"
-    "@testing-library/dom": "npm:^9.3.4"
-    "@testing-library/jest-dom": "npm:^6.4.2"
-    "@testing-library/react": "npm:^14.2.1"
-    "@testing-library/user-event": "npm:^14.5.2"
-    "@types/fs-extra": "npm:^11.0.4"
-    "@types/identity-obj-proxy": "npm:^3.0.2"
-    "@types/jest": "npm:^29.5.12"
-    "@types/node": "npm:^20.11.16"
-    "@types/react": "npm:^18.2.54"
-    "@types/react-dom": "npm:^18.2.18"
-    "@types/signale": "npm:^1.4.7"
-    "@types/yargs": "npm:^17.0.32"
-    "@typescript-eslint/eslint-plugin": "npm:^6.21.0"
-    "@typescript-eslint/parser": "npm:^6.21.0"
-    "@vitejs/plugin-react": "npm:^4.2.1"
-    esbuild: "npm:^0.20.0"
-    esbuild-jest: "npm:^0.5.0"
-    eslint: "npm:^8.56.0"
-    eslint-config-airbnb: "npm:^19.0.4"
-    eslint-config-airbnb-typescript: "npm:^17.1.0"
-    eslint-config-mantine: "npm:^3.1.0"
-    eslint-plugin-import: "npm:^2.29.1"
-    eslint-plugin-jsx-a11y: "npm:^6.8.0"
-    eslint-plugin-react: "npm:^7.33.2"
-    eslint-plugin-react-hooks: "npm:^4.6.0"
-    esno: "npm:^4.0.0"
-    execa: "npm:^8.0.1"
-    fs-extra: "npm:^11.2.0"
-    gh-pages: "npm:^6.1.1"
-    hash-css-selector: "npm:^1.0.0"
-    identity-obj-proxy: "npm:^3.0.0"
-    jest: "npm:^29.7.0"
-    jest-axe: "npm:^8.0.0"
-    jest-environment-jsdom: "npm:^29.7.0"
-    mantine-docgen-script: "npm:^1.3.1"
-    new-github-release-url: "npm:^2.0.0"
-    open: "npm:^10.0.3"
-    postcss: "npm:^8.4.34"
-    postcss-preset-mantine: "npm:1.13.0"
-    prettier: "npm:^3.2.5"
-    react: "npm:18.2.0"
-    react-dom: "npm:18.2.0"
-    rimraf: "npm:^5.0.5"
-    rollup: "npm:^4.9.6"
-    rollup-plugin-banner2: "npm:^1.2.2"
-    rollup-plugin-esbuild: "npm:^6.1.1"
-    rollup-plugin-node-externals: "npm:^7.0.1"
-    rollup-plugin-postcss: "npm:^4.0.2"
-    signale: "npm:^1.4.0"
-    simple-git: "npm:^3.22.0"
-    storybook: "npm:^7.6.12"
-    storybook-dark-mode: "npm:^3.0.3"
-    stylelint: "npm:^16.2.1"
-    stylelint-config-standard-scss: "npm:^13.0.0"
-    syncpack: "npm:^12.3.0"
-    typescript: "npm:5.3.3"
-    version-next: "npm:^1.0.2"
-    vite: "npm:^4.5.2"
-    yargs: "npm:^17.7.2"
-  languageName: unknown
-  linkType: soft
-
 "magic-string@npm:^0.25.7":
   version: 0.25.9
   resolution: "magic-string@npm:0.25.9"
@@ -12683,6 +12574,115 @@ __metadata:
   checksum: 32a4574db19691590c0ab4af4cadca74840547affca85c4a1be661808c4ca0d93b06c5b489222bf29635e6070cef2ef88e03d0ecb5900994c5d2cd925321a704
   languageName: node
   linkType: hard
+
+"mantinex-composite-docs@workspace:docs":
+  version: 0.0.0-use.local
+  resolution: "mantinex-composite-docs@workspace:docs"
+  dependencies:
+    "@bccampus/mantinex-composite": "workspace:^"
+    "@mantine/core": "npm:7.5.1"
+    "@mantine/hooks": "npm:7.5.1"
+    "@mantinex/demo": "npm:^1.1.1"
+    "@mantinex/dev-icons": "npm:^1.0.2"
+    "@mantinex/mantine-header": "npm:^1.0.2"
+    "@mantinex/mantine-logo": "npm:^1.0.1"
+    "@mantinex/mantine-meta": "npm:^1.0.2"
+    "@mantinex/shiki": "npm:^1.0.3"
+    "@mdx-js/loader": "npm:^3.0.0"
+    "@mdx-js/react": "npm:^3.0.0"
+    "@next/mdx": "npm:^14.1.0"
+    "@tabler/icons-react": "npm:^2.47.0"
+    "@types/mdx": "npm:^2.0.11"
+    "@types/node": "npm:^20.11.16"
+    "@types/react": "npm:^18.2.54"
+    "@types/react-dom": "npm:^18.2.18"
+    next: "npm:14.1.0"
+    react: "npm:18.2.0"
+    react-dom: "npm:18.2.0"
+    remark-slug: "npm:^7.0.1"
+    shikiji: "npm:^0.7.4"
+    type-fest: "npm:^4.10.2"
+    typescript: "npm:5.3.3"
+  peerDependenciesMeta:
+    webpack:
+      optional: true
+  languageName: unknown
+  linkType: soft
+
+"mantinex-composite-root@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "mantinex-composite-root@workspace:."
+  dependencies:
+    "@mantine-tests/core": "npm:^1.0.1"
+    "@mantine/core": "npm:7.5.1"
+    "@mantine/hooks": "npm:7.5.1"
+    "@rollup/plugin-node-resolve": "npm:^15.2.3"
+    "@rollup/plugin-replace": "npm:^5.0.5"
+    "@storybook/addon-essentials": "npm:^7.6.12"
+    "@storybook/blocks": "npm:^7.6.12"
+    "@storybook/react": "npm:^7.6.12"
+    "@storybook/react-vite": "npm:^7.6.12"
+    "@testing-library/dom": "npm:^9.3.4"
+    "@testing-library/jest-dom": "npm:^6.4.2"
+    "@testing-library/react": "npm:^14.2.1"
+    "@testing-library/user-event": "npm:^14.5.2"
+    "@types/fs-extra": "npm:^11.0.4"
+    "@types/identity-obj-proxy": "npm:^3.0.2"
+    "@types/jest": "npm:^29.5.12"
+    "@types/node": "npm:^20.11.16"
+    "@types/react": "npm:^18.2.54"
+    "@types/react-dom": "npm:^18.2.18"
+    "@types/signale": "npm:^1.4.7"
+    "@types/yargs": "npm:^17.0.32"
+    "@typescript-eslint/eslint-plugin": "npm:^6.21.0"
+    "@typescript-eslint/parser": "npm:^6.21.0"
+    "@vitejs/plugin-react": "npm:^4.2.1"
+    esbuild: "npm:^0.20.0"
+    esbuild-jest: "npm:^0.5.0"
+    eslint: "npm:^8.56.0"
+    eslint-config-airbnb: "npm:^19.0.4"
+    eslint-config-airbnb-typescript: "npm:^17.1.0"
+    eslint-config-mantine: "npm:^3.1.0"
+    eslint-plugin-import: "npm:^2.29.1"
+    eslint-plugin-jsx-a11y: "npm:^6.8.0"
+    eslint-plugin-react: "npm:^7.33.2"
+    eslint-plugin-react-hooks: "npm:^4.6.0"
+    esno: "npm:^4.0.0"
+    execa: "npm:^8.0.1"
+    fs-extra: "npm:^11.2.0"
+    gh-pages: "npm:^6.1.1"
+    hash-css-selector: "npm:^1.0.0"
+    identity-obj-proxy: "npm:^3.0.0"
+    jest: "npm:^29.7.0"
+    jest-axe: "npm:^8.0.0"
+    jest-environment-jsdom: "npm:^29.7.0"
+    mantine-docgen-script: "npm:^1.3.1"
+    new-github-release-url: "npm:^2.0.0"
+    open: "npm:^10.0.3"
+    postcss: "npm:^8.4.34"
+    postcss-preset-mantine: "npm:1.13.0"
+    prettier: "npm:^3.2.5"
+    react: "npm:18.2.0"
+    react-dom: "npm:18.2.0"
+    rimraf: "npm:^5.0.5"
+    rollup: "npm:^4.9.6"
+    rollup-plugin-banner2: "npm:^1.2.2"
+    rollup-plugin-esbuild: "npm:^6.1.1"
+    rollup-plugin-node-externals: "npm:^7.0.1"
+    rollup-plugin-postcss: "npm:^4.0.2"
+    signale: "npm:^1.4.0"
+    simple-git: "npm:^3.22.0"
+    storybook: "npm:^7.6.12"
+    storybook-dark-mode: "npm:^3.0.3"
+    stylelint: "npm:^16.2.1"
+    stylelint-config-standard-scss: "npm:^13.0.0"
+    syncpack: "npm:^12.3.0"
+    typescript: "npm:5.3.3"
+    version-next: "npm:^1.0.2"
+    vite: "npm:^4.5.2"
+    yargs: "npm:^17.7.2"
+  languageName: unknown
+  linkType: soft
 
 "map-cache@npm:^0.2.2":
   version: 0.2.2

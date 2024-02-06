@@ -1,5 +1,5 @@
 {
-  "name": "@bccampus/mantinex-composite-docs",
+  "name": "mantinex-composite-docs",
   "version": "0.1.0",
   "private": true,
   "scripts": {

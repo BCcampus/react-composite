@@ -27,7 +27,10 @@
     "./styles.css": "./dist/styles.css",
     "./styles.layer.css": "./dist/styles.layer.css"
   },
-  "repository": "https://github.com/bccampus/mantinex-composite.git",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bccampus/mantinex-composite.git"
+  },
   "workspaces": [
     "docs"
   ],
