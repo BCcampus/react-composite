@@ -1,6 +1,6 @@
 {
   "name": "@bccampus/react-composite",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Base React component to create composite widgets",
   "homepage": "https://github.com/bccampus/react-composite",
   "packageManager": "yarn@4.1.0",
