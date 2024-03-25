@@ -1,14 +1,17 @@
 {
-  "name": "@bccampus/mantinex-composite",
-  "version": "0.1.1",
-  "description": "Mantine Composite component",
-  "homepage": "https://github.com/bccampus/mantinex-composite",
-  "packageManager": "yarn@4.0.1",
+  "name": "@bccampus/react-composite",
+  "version": "0.1.0",
+  "description": "Base React component to create composite widgets",
+  "homepage": "https://github.com/bccampus/react-composite",
+  "packageManager": "yarn@4.1.0",
   "license": "MIT",
   "author": "Kemal Tunador <ktunador@bccampus.ca>",
   "keywords": [
-    "extension",
-    "mantine"
+    "react",
+    "composite",
+    "treeview",
+    "listbox",
+    "layout grid"
   ],
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.mjs",
@@ -29,16 +32,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bccampus/mantinex-composite.git"
+    "url": "git+https://github.com/bccampus/react-composite.git"
   },
   "workspaces": [
     "docs"
   ],
   "peerDependencies": {
-    "@mantine/core": ">=7.0.0",
-    "@mantine/hooks": ">=7.0.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
-  "bugs": "https://github.com/bccampus/mantinex-composite/issues"
+  "bugs": "https://github.com/bccampus/react-composite/issues"
 }

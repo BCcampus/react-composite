@@ -24,22 +24,25 @@ const git = SimpleGit();
 
 const versionIncrement: VersionIncrement = argv._[0] || 'patch';
 const versionStage: VersionStage | undefined = argv.stage;
+const isLocalRelease: boolean = !!argv.local;
 
 async function release() {
-  await run(git.pull(), {
-    info: 'Pulling the latest changes from the remote repository',
-    success: 'The latest changes have been pulled from the remote repository',
-    error: 'Failed to pull the latest changes from the remote repository',
-  });
+  if (!isLocalRelease) {
+    await run(git.pull(), {
+      info: 'Pulling the latest changes from the remote repository',
+      success: 'The latest changes have been pulled from the remote repository',
+      error: 'Failed to pull the latest changes from the remote repository',
+    });
 
-  const gitStatus = await git.status();
+    const gitStatus = await git.status();
 
-  if (gitStatus.files.length > 0) {
-    signale.error(
-      'Working directory is not clean, commit all changes before publishing the package.'
-    );
+    if (gitStatus.files.length > 0) {
+      signale.error(
+        'Working directory is not clean, commit all changes before publishing the package.'
+      );
 
-    process.exit(1);
+      process.exit(1);
+    }
   }
 
   const nextVersion = getNextVersion(packageJson.version, {
@@ -100,18 +103,19 @@ async function release() {
     },
     revertVersion
   );
+  if (!isLocalRelease) {
+    await git.add([packageJsonPath]);
+    await git.commit(`Release ${nextVersion}`);
+    await git.push();
 
-  await git.add([packageJsonPath]);
-  await git.commit(`Release ${nextVersion}`);
-  await git.push();
-
-  open(
-    githubRelease({
-      ...getRepositoryInfo(packageJson.repository.url),
-      tag: nextVersion,
-      title: nextVersion,
-    })
-  );
+    open(
+      githubRelease({
+        ...getRepositoryInfo(packageJson.repository.url),
+        tag: nextVersion,
+        title: nextVersion,
+      })
+    );
+  }
 }
 
 release();

@@ -1,11 +1,15 @@
 import React, { memo, useId } from 'react';
 import { Indicator, Paper, Stack, Text } from '@mantine/core';
-import { CompositeChildProps } from '@bccampus/mantinex-composite';
-import { MantineComponentMetadata } from './_data';
+import { CompositeItemProps, CompositeItemSelectionProps } from '@bccampus/react-composite';
 import classes from './Composite.demo.module.css';
 
 export const ComponentCardCell = memo(
-  ({ item, selected, disabled, ...rest }: CompositeChildProps<MantineComponentMetadata>) => {
+  ({
+    item,
+    selected,
+    onSelectMouseEventHandler,
+    ...rest
+  }: CompositeItemProps & CompositeItemSelectionProps) => {
     const labelId = useId();
     const descId = useId();
 
@@ -14,9 +18,10 @@ export const ComponentCardCell = memo(
         shadow="sm"
         p="sm"
         {...rest}
-        aria-selected={selected}
+        aria-selected={!!selected}
         aria-labelledby={labelId}
         aria-describedby={descId}
+        onClickCapture={onSelectMouseEventHandler}
         className={classes.compositeItem}
       >
         <Indicator size={16} offset={4} color="green" withBorder disabled={!selected}>

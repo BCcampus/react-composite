@@ -192,8 +192,12 @@ function Demo(props: DemoCompositeComponentProps<PersonProfile>) {
       multiple
       trackSelectioMode
       items={people}
-      renderItem={(item, { selected, disabled }, itemProps) => (
-        <PersonCardCell item={item} selected={selected} disabled={disabled} {...itemProps} />
+      renderItem={(itemProps, { selected, onSelectMouseEventHandler }) => (
+        <PersonCardCell
+          selected={selected}
+          onSelectMouseEventHandler={onSelectMouseEventHandler}
+          {...itemProps}
+        />
       )}
     />
   );

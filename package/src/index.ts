@@ -1,16 +1,25 @@
 export type {
-  CompositeBaseProps,
   CompositeProps,
-  CompositeChildProps,
-  CompositeItemRenderFn,
+  CompositeItemElementProps,
+  CompositeItemRenderer,
   CompositeContextValue,
-  CompositeGridProps,
-  CompositeListboxProps,
-  CompositeTreeProps,
+  CompositeSelectionProps,
+  CompositeExpansionProps,
+  CompositeItemProps,
+  CompositeItemExpansionProps,
+  CompositeItemSelectionProps,
+  CompositeType,
+  CompositeItemMeta,
+  CompositeRoles,
+  CompositeRootRole,
+  CompositeGroupRole,
+  CompositeItemRole,
+  ExpansionState,
+  FocusOptions,
+  SelectionOptions,
+  ExpansionOptions,
+  SelectionState,
 } from './Composite.types';
 
-export { FocusManagerEventHandler } from './FocusManager/EventHandlers/FocusManagerEventHandler';
-export type { FocusOptions } from './FocusManager/FocusManager.types';
-export type { SelectionOptions } from './SelectionManager/SelectionManager';
-
+export { AbstractEventHandler } from './FocusManager/EventHandlers/AbstractEventHandler';
 export { Composite, useCompositeContext } from './Composite';

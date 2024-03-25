@@ -1,8 +1,10 @@
-import React, { Key, useState } from 'react';
+import React, { useState } from 'react';
 import { IconCheck } from '@tabler/icons-react';
 import { Flex, Group, Text } from '@mantine/core';
-import { Composite } from './Composite';
-import { CompositeItemRenderFn } from './Composite.types';
+import { Composite } from '../Composite';
+import { CompositeItemRenderer, SelectionState } from '../Composite.types';
+
+import classes from './main.module.css';
 
 export default { title: 'Composite' };
 
@@ -16,15 +18,22 @@ const items: StoryItem[] = [
   { id: 3, label: 'Item 3' },
   { id: 4, label: 'Item 4' },
   { id: 5, label: 'Item 5' },
+  { id: 6, label: 'Item 6' },
+  { id: 7, label: 'Item 7' },
+  { id: 8, label: 'Item 8' },
+  { id: 9, label: 'Item 9' },
+  { id: 10, label: 'Item 10' },
+  { id: 11, label: 'Item 11' },
 ];
 
-const renderItem: CompositeItemRenderFn<StoryItem> = (item, { selected }, props) => (
-  <div {...props}>
-    <Group>
-      <Text>{item.label}</Text>
-      {selected && <IconCheck size="1rem" />}
-    </Group>
-  </div>
+const renderItem: CompositeItemRenderer<StoryItem> = (
+  { item, ...props },
+  { selected, onSelectMouseEventHandler }
+) => (
+  <Group {...props} onClickCapture={onSelectMouseEventHandler}>
+    <Text pl="xs">{item.label}</Text>
+    {selected && <IconCheck size="1rem" />}
+  </Group>
 );
 
 export function Usage() {
@@ -34,17 +43,15 @@ export function Usage() {
         Multiple-select (loop: true)
       </Text>
       <Composite
-        role="listbox"
-        navigableChildRole="option"
+        type="VerticalListbox"
         items={items}
         focusOptions={{
           loop: true,
         }}
-        selectionOptions={{
-          multiple: true,
-        }}
-        renderRoot={(props) => <Flex {...props} direction="column" />}
+        selectionOptions={false}
+        expansionOptions={false}
         renderItem={renderItem}
+        className={classes['simple-listbox']}
       />
     </div>
   );
@@ -57,9 +64,10 @@ export function BasicLayoutGrid() {
         Single-select
       </Text>
       <Composite
-        role="grid"
-        navigableChildRole="gridcell"
+        type="LayoutGrid"
         items={items}
+        selectionOptions={{ multiple: true }}
+        focusOptions={{ loop: false }}
         renderRoot={({ role, ...props }) => (
           <div role={role}>
             <div
@@ -79,19 +87,19 @@ export function BasicLayoutGrid() {
 }
 
 export function ControlledGrid() {
-  const [selections, setSelections] = useState<Key[]>([]);
+  const [selections, setSelections] = useState<SelectionState>({ selected: new Set() });
+  const { selected } = selections;
 
   return (
-    <div style={{ maxWidth: 400, padding: 40, margin: 'auto' }}>
+    <div style={{ padding: 40, margin: 'auto' }}>
       <Text size="md" my="xs">
         Multiple-select
       </Text>
       <Composite
-        role="grid"
-        navigableChildRole="gridcell"
+        type="LayoutGrid"
         items={items}
-        value={selections}
-        onChange={setSelections}
+        selectionState={selections}
+        onSelectionChange={setSelections}
         selectionOptions={{
           multiple: true,
         }}
@@ -102,7 +110,7 @@ export function ControlledGrid() {
               role="row"
               style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(3, 1fr)',
+                gridTemplateColumns: 'repeat(auto-fill, minmax(20rem, auto))',
               }}
             />
           </div>
@@ -110,7 +118,7 @@ export function ControlledGrid() {
         renderItem={renderItem}
       />
       <Text size="sm" my="xs">
-        Selections: {selections.join(', ')}
+        Selected: {JSON.stringify([...selected], null, 2)}
       </Text>
     </div>
   );

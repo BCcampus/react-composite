@@ -1,11 +1,11 @@
 import React, { useMemo } from 'react';
 import { Checkbox, Flex, Paper } from '@mantine/core';
-import { Composite, CompositeBaseProps } from '@bccampus/mantinex-composite';
+import { Composite, CompositeProps } from '@bccampus/react-composite';
 import { mantineComponents } from './_data';
 import classes from './Composite.demo.module.css';
 
 export function PackageList(
-  props: Omit<CompositeBaseProps<string>, 'items' | 'getItemKey' | 'renderItem'>
+  props: Omit<CompositeProps<string>, 'type' | 'items' | 'getItemKey' | 'renderItem'>
 ) {
   const packages = useMemo(
     () =>
@@ -20,19 +20,19 @@ export function PackageList(
   return (
     <Composite
       {...props}
-      role="listbox"
-      navigableChildRole="option"
+      type="VerticalListbox"
       items={[...packages]}
       getItemKey={(item) => item}
       renderRoot={(rootProps) => <Flex {...rootProps} direction="column" gap="xs" />}
-      renderItem={(item, { selected, disabled }, itemProps) => (
-        <Paper
-          {...itemProps}
-          // withBorder
-          p="xs"
-          className={classes.compositeItem}
-        >
-          <Checkbox readOnly checked={selected} disabled={disabled} label={item} />
+      renderItem={({ item, ...itemProps }, { selected, onSelectMouseEventHandler }) => (
+        <Paper {...itemProps} p="xs" className={classes.compositeItem}>
+          <Checkbox
+            readOnly
+            checked={!!selected}
+            disabled={itemProps['aria-disabled']}
+            label={item}
+            onClick={onSelectMouseEventHandler}
+          />
         </Paper>
       )}
     />

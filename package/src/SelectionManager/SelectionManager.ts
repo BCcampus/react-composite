@@ -1,184 +1,271 @@
-import { Key, KeyboardEvent, MouseEvent } from 'react';
-import { DisabledEventHandler } from '../FocusManager/EventHandlers/DisabledEventHandler';
-import { FocusManager } from '../FocusManager/FocusManager';
+import type { Key, KeyboardEvent, MouseEvent } from 'react';
+import type { FocusManager } from '../FocusManager/FocusManager';
+import type { SelectionState, SelectionOptions } from '../Composite.types';
 
-export interface SelectionOptions {
-  multiple: boolean;
-  // Only applys to single-select widgets
-  followFocus?: boolean;
-  trackSelectioMode?: boolean;
+import { SelectionEventHandler } from './SelectionEventHandler';
+import { range } from '../utils/range/range';
+
+type OnChangeCallback = (state: SelectionState) => void;
+
+interface SelectionManagerParams {
+  focusManager: FocusManager;
+  initialState?: SelectionState;
+  setSelectionState: OnChangeCallback;
+  options?: SelectionOptions;
 }
-
-type OnChangeCallbackFn = (selections: Key[]) => void;
-
-export interface SelectionState {
-  initialSelections?: Key[];
-  onSelectionChange: OnChangeCallbackFn;
-}
-
-const range = (start: number, stop: number, step: number) =>
-  Array.from({ length: (stop - start) / step + 1 }, (_, i) => start + i * step);
 
 export class SelectionManager {
-  protected _focusManager: FocusManager;
-  protected _selectedKeys: Set<Key>;
-  protected _options: SelectionOptions;
-  protected _lastSelectionIndex?: number;
-  protected _allSelected: boolean = false;
-  protected _onChange: OnChangeCallbackFn;
+  private _focusManager: FocusManager;
 
-  constructor(focusManager: FocusManager, state: SelectionState, options: SelectionOptions) {
-    this._focusManager = focusManager;
-    this._onChange = state.onSelectionChange;
-
-    this._options = {
-      followFocus: false,
-      trackSelectioMode: false,
-      ...options,
-    };
-
-    if (state.initialSelections) {
-      this._selectedKeys = new Set(
-        this._options.multiple ? [...state.initialSelections] : [state.initialSelections[0]]
-      );
-    } else this._selectedKeys = new Set([]);
-  }
-
+  private _selectedKeys: Set<Key>;
   get selectedKeys() {
     return this._selectedKeys;
   }
 
+  private _indeterminateKeys: Set<Key>;
+  get indeterminateKeys() {
+    return this._indeterminateKeys;
+  }
+
+  private _options: Required<SelectionOptions>;
+  get options() {
+    return this._options;
+  }
   get multiple() {
     return this._options.multiple ?? false;
   }
 
-  get allSelected() {
-    return this._allSelected;
+  private _lastSelectionIndex?: number;
+  private _setSelectionState: OnChangeCallback;
+  private _eventHandler: SelectionEventHandler;
+
+  private _selectableItemCount: number = 0;
+  get selectableItemCount() {
+    return this._selectableItemCount;
   }
 
-  setSelections(selections: Key[]) {
-    this._selectedKeys = new Set([...selections]);
-    this._allSelected = this._focusManager.focusableDecendantCount === this._selectedKeys.size;
+  constructor(params: SelectionManagerParams) {
+    this._focusManager = params.focusManager;
+    this._setSelectionState = params.setSelectionState;
+
+    this._options = {
+      multiple: false,
+      followFocus: false,
+      trackSelectioMode: false,
+      ariaStateAttribute: 'aria-selected',
+      makeInferredSelection: false,
+      ...params.options,
+      allowGroupSelection:
+        this._focusManager.options.includeGroups === true &&
+        params.options?.allowGroupSelection === true,
+    };
+
+    this._selectedKeys = new Set(params.initialState.selected);
+    this._indeterminateKeys = new Set();
+
+    this._eventHandler = new SelectionEventHandler(this._focusManager, this._focusManager, this);
+  }
+
+  init() {
+    this._selectableItemCount = 0;
+    this._focusManager.items.forEach((item) => {
+      if (this.isSelectableItem(item)) {
+        this._selectableItemCount += 1;
+      }
+    });
+  }
+
+  getFirstSelection() {
+    return this._focusManager.root.querySelector(`[${this._options.ariaStateAttribute}='true']`);
+  }
+
+  isSelectableItem(item?: HTMLElement) {
+    if (!item || item.ariaDisabled === 'true') return false;
+
+    return (
+      item.getAttribute(this._options.ariaStateAttribute) === 'false' ||
+      item.getAttribute(this._options.ariaStateAttribute) === 'true'
+    );
+  }
+
+  isSelectableItemIndex(index: number) {
+    return this.isSelectableItem(this._focusManager.items?.[index]);
+  }
+
+  private isAllSelected() {
+    return this.selectableItemCount === this._selectedKeys.size;
+  }
+
+  setSelections(selections: SelectionState) {
+    this._selectedKeys = new Set(selections.selected);
+    this._indeterminateKeys = new Set(selections.indeterminate);
+
     this._lastSelectionIndex = this._focusManager.focused.index;
   }
 
-  getElementKey(index?: number) {
-    const element =
-      index !== undefined
-        ? this._focusManager.descendants?.[index]
-        : this._focusManager.focused.element;
+  private select(el: HTMLElement, indeterminate: boolean = false) {
+    if (this.isSelectableItem(el)) {
+      const key = this._focusManager.getItemKey(el);
 
-    const _key = element?.dataset.itemKey;
-
-    if (_key === undefined) throw new Error('Undefined item key.');
-
-    return JSON.parse(_key) as Key;
+      if (!this._options.multiple) {
+        if (!indeterminate) {
+          this._selectedKeys = new Set([key]);
+          this._indeterminateKeys.delete(key);
+        } else {
+          this._indeterminateKeys.add(key);
+          this._selectedKeys.delete(key);
+        }
+      } else if (!indeterminate) {
+        this._selectedKeys.add(key);
+        this._indeterminateKeys.delete(key);
+      } else {
+        this._indeterminateKeys.add(key);
+        this._selectedKeys.delete(key);
+      }
+      return key;
+    }
+    return undefined;
   }
 
-  toggleSelection() {
-    const key = this.getElementKey();
-    if (key) {
-      if (!this._options.multiple) {
-        this._selectedKeys = new Set([key]);
-        this._lastSelectionIndex = this._focusManager.focused.index;
-      } else if (this._selectedKeys.has(key)) {
-        this._selectedKeys.delete(key);
-        this._lastSelectionIndex = undefined;
-      } else {
-        this._selectedKeys.add(key);
-        this._lastSelectionIndex = this._focusManager.focused.index;
+  private inferSelect(el: HTMLElement) {
+    if (this._options.makeInferredSelection) {
+      if (this._options.multiple) {
+        const children = this._focusManager.getChildren(el);
+        children.forEach((child) => this.select(child));
       }
 
-      this._allSelected = this._focusManager.focusableDecendantCount === this._selectedKeys.size;
-      this._onChange([...this._selectedKeys]);
+      const ancestors = this._focusManager.getAncestors(el);
+      const predicate = (sibling) => {
+        const key = this._focusManager.getItemKey(sibling);
+        return this._selectedKeys.has(key);
+      };
+      let indeterminateParents = false;
+      for (let i = 0; i < ancestors.length; i += 1) {
+        if (!indeterminateParents) {
+          const siblings = this._focusManager.getSiblings(i > 0 ? ancestors[i - 1] : el);
+          if (this._options.multiple && siblings.every(predicate)) this.select(ancestors[i]);
+          else {
+            this.select(ancestors[i], true);
+            indeterminateParents = true;
+          }
+        } else {
+          this.select(ancestors[i], true);
+        }
+      }
+    }
+  }
+
+  private deselect(el: HTMLElement) {
+    if (this.isSelectableItem(el)) {
+      const key = this._focusManager.getItemKey(el);
+      if (this._options.multiple) {
+        this._selectedKeys.delete(key);
+        this._indeterminateKeys.delete(key);
+        return key;
+      }
+    }
+    return undefined;
+  }
+
+  private inferDeselect(el: HTMLElement) {
+    if (this._options.makeInferredSelection && this._options.multiple) {
+      const children = this._focusManager.getChildren(el);
+      children.forEach((child) => this.deselect(child));
+
+      const ancestors = this._focusManager.getAncestors(el);
+      const predicate = (sibling) => {
+        const key = this._focusManager.getItemKey(sibling);
+        return !this._selectedKeys.has(key);
+      };
+      let indeterminateParents = false;
+      for (let i = 0; i < ancestors.length; i += 1) {
+        if (!indeterminateParents) {
+          const siblings = this._focusManager.getSiblings(i > 0 ? ancestors[i - 1] : el);
+
+          if (siblings.every(predicate)) this.deselect(ancestors[i]);
+          else {
+            this.select(ancestors[i], true);
+            indeterminateParents = true;
+          }
+        } else {
+          this.select(ancestors[i], true);
+        }
+      }
+    }
+  }
+
+  toggleSelection(el: HTMLElement) {
+    if (this.isSelectableItem(el)) {
+      const key = this._focusManager.getItemKey(el);
+      if (key) {
+        if (this._selectedKeys.has(key)) {
+          this.deselect(el);
+          this.inferDeselect(el);
+          this._lastSelectionIndex = undefined;
+        } else {
+          if (!this._options.multiple) this._indeterminateKeys = new Set([]);
+          this.select(el);
+          this.inferSelect(el);
+          this._lastSelectionIndex = this._focusManager.getItemIndex(el);
+        }
+
+        this._setSelectionState({
+          selected: new Set(this._selectedKeys),
+          indeterminate: new Set(this._indeterminateKeys),
+        });
+      }
     }
   }
 
   selectRange(from?: number) {
     if (!this._options.multiple) {
-      this._selectedKeys = new Set([this.getElementKey()]);
+      this.select(this._focusManager.items[this._focusManager.focused.index]);
     } else {
       const _fromIndex = from ?? this._lastSelectionIndex ?? this._focusManager.focused.index;
       const selectionRange = range(
-        Math.min(_fromIndex, this._focusManager.focused.index),
         Math.max(_fromIndex, this._focusManager.focused.index),
-        1
-      ).filter((index) => this._focusManager.isFocusableIndex(index));
+        Math.min(_fromIndex, this._focusManager.focused.index)
+      );
 
-      this._selectedKeys = new Set([
-        ...this._selectedKeys,
-        ...selectionRange.map((index) => this.getElementKey(index)),
-      ]);
+      for (const index of selectionRange) {
+        this.select(this._focusManager.items[index]);
+        this.inferSelect(this._focusManager.items[index]);
+      }
     }
 
     this._lastSelectionIndex = this._focusManager.focused.index;
-    this._allSelected = this._focusManager.focusableDecendantCount === this._selectedKeys.size;
-
-    this._onChange([...this._selectedKeys]);
+    this._setSelectionState({
+      selected: new Set(this._selectedKeys),
+      indeterminate: new Set(this._indeterminateKeys),
+    });
   }
 
   toggleAll() {
     if (this._options.multiple) {
-      if (!this._allSelected) {
-        this._allSelected = true;
-        this._lastSelectionIndex = this._focusManager.lastDescendantIndex;
-        const selectionRange = range(0, this._lastSelectionIndex, 1).filter((index) =>
-          this._focusManager.isFocusableIndex(index)
-        );
-        this._selectedKeys = new Set(selectionRange.map((index) => this.getElementKey(index)));
+      if (!this.isAllSelected()) {
+        const selectionRange = range(0, this._focusManager.lastItemIndex);
+        for (const index of selectionRange) {
+          this.select(this._focusManager.items[index]);
+        }
+        this._lastSelectionIndex = this._focusManager.lastItemIndex;
       } else {
-        this._allSelected = false;
         this._lastSelectionIndex = undefined;
         this._selectedKeys = new Set();
+        this._indeterminateKeys = new Set();
       }
     }
 
-    this._onChange([...this._selectedKeys]);
+    this._setSelectionState({
+      selected: new Set(this._selectedKeys),
+      indeterminate: new Set(this._indeterminateKeys),
+    });
   }
 
-  keyboardEventHandler(event: KeyboardEvent<HTMLElement>) {
-    if (!(this._focusManager.eventHandler instanceof DisabledEventHandler)) {
-      const prevFocusedIndex = this._focusManager.focused.index;
-      this._focusManager.eventHandler?.keyboardEventHandler(event);
-
-      if (event.key === ' ') {
-        event.preventDefault();
-        // Changes the selection state of the focused option.
-        if (!event.shiftKey) {
-          this.toggleSelection();
-        } else {
-          // Shift + Space: Selects contiguous items from **the most recently selected item** to the focused item.
-          this.selectRange();
-        }
-      } else if (event.key.toLowerCase() === 'a' && event.ctrlKey) {
-        event.preventDefault();
-        // Selects all options in the list.
-        // If, all options are selected, it may also unselect all options.
-        this.toggleAll();
-      }
-
-      if (prevFocusedIndex !== this._focusManager.focused.index) {
-        if (!this._options.multiple && this._options.followFocus === true) {
-          this.toggleSelection();
-        }
-
-        // All focus movements with `Shift` modifier
-        // select the previously focused item and all items up to the new focused item.
-        if (event.shiftKey) {
-          this.selectRange(prevFocusedIndex);
-        }
-      }
-    }
+  keyboardEventHandler(event: KeyboardEvent) {
+    return this._eventHandler.keyboardEventHandler(event);
   }
 
-  mouseEventHandler(event: MouseEvent<HTMLElement>) {
-    if (!(this._focusManager.eventHandler instanceof DisabledEventHandler)) {
-      this._focusManager.eventHandler?.mouseEventHandler(event);
-      if (this._options.multiple && event.shiftKey) {
-        this.selectRange();
-      } else {
-        this.toggleSelection();
-      }
-    }
+  mouseEventHandler(event: MouseEvent) {
+    return this._eventHandler.mouseEventHandler(event);
   }
 }

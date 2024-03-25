@@ -1,19 +1,27 @@
 import React, { memo } from 'react';
 import { Image } from '@mantine/core';
-import { CompositeChildProps } from '@bccampus/mantinex-composite';
+import { CompositeItemProps, CompositeItemSelectionProps } from '@bccampus/react-composite';
 import { PersonProfile } from './_data';
 import classes from './Composite.grid.module.css';
 
 export const ImageCell = memo(
-  ({ item, selected, disabled, ...rest }: CompositeChildProps<PersonProfile>) => (
+  ({
+    item,
+    selected,
+    onSelectMouseEventHandler,
+    ...rest
+  }: CompositeItemProps<PersonProfile> & CompositeItemSelectionProps) => (
     <Image
       src={item.image}
-      alt=""
+      aria-label={item.fullname}
+      aria-describedby={item.title}
+      alt={item.fullname}
       fit="cover"
       radius="md"
       {...rest}
-      aria-selected={selected}
+      aria-selected={!!selected}
       className={classes.gridcellImage}
+      onClickCapture={onSelectMouseEventHandler}
     />
   )
 );

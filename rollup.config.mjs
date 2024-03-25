@@ -5,6 +5,7 @@ import replace from '@rollup/plugin-replace';
 import esbuild from 'rollup-plugin-esbuild';
 import postcss from 'rollup-plugin-postcss';
 import banner from 'rollup-plugin-banner2';
+import { visualizer } from 'rollup-plugin-visualizer';
 import { createGenerateScopedName } from 'hash-css-selector';
 
 const outputDir = path.join(process.cwd(), './package/dist');
@@ -48,6 +49,11 @@ export default {
       }
 
       return undefined;
+    }),
+    visualizer({
+      filename: path.join(process.cwd(), 'package-stats.html'),
+      gzipSize: true,
+      projectRoot: path.join(process.cwd(), './package/src/'),
     }),
   ],
 };

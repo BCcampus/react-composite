@@ -12,8 +12,12 @@ function Demo(props: DemoCompositeComponentProps<PersonProfile>) {
     <ConfiguratorDemoGrid
       {...props}
       items={people}
-      renderItem={(item, { selected, disabled }, itemProps) => (
-        <ImageCell item={item} selected={selected} disabled={disabled} {...itemProps} />
+      renderItem={(itemProps, { selected, onSelectMouseEventHandler }) => (
+        <ImageCell
+          selected={selected}
+          onSelectMouseEventHandler={onSelectMouseEventHandler}
+          {...itemProps}
+        />
       )}
     />
   );

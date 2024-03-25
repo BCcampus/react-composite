@@ -1,7 +1,10 @@
-// eslint-disable-next-line import/no-cycle
-import { FocusManagerEventHandler } from './FocusManagerEventHandler';
+import { AbstractEventHandler } from './AbstractEventHandler';
 
-export class DisabledEventHandler extends FocusManagerEventHandler {
-  keyboardEventHandler() {}
-  mouseEventHandler() {}
+export class DisabledEventHandler extends AbstractEventHandler {
+  keyboardEventHandler() {
+    return false;
+  }
+  mouseEventHandler() {
+    return false;
+  }
 }

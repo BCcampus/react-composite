@@ -4,7 +4,6 @@ import { useHotkeys } from '@mantine/hooks';
 import { AppShell, Container, RemoveScroll, Group, useMantineColorScheme } from '@mantine/core';
 import { MantineLogo } from '@mantinex/mantine-logo';
 import { ColorSchemeControl, HeaderControls } from '@mantinex/mantine-header';
-import { meta } from '@mantinex/mantine-meta';
 import { PACKAGE_DATA } from '../../data';
 import classes from './Shell.module.css';
 
@@ -32,9 +31,10 @@ export function Shell({ children }: ShellProps) {
           <HeaderControls
             visibleFrom="sm"
             githubLink={PACKAGE_DATA.repositoryUrl}
+            discordLink=""
             withDirectionToggle={false}
             withSearch={false}
-            discordLink={meta.discordLink}
+            withDiscord={false}
           />
 
           <Group hiddenFrom="sm">

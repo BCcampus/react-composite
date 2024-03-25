@@ -1,12 +1,24 @@
 import React, { memo, useId } from 'react';
-import { Card, Checkbox, Image, Overlay, Paper, Stack, Text } from '@mantine/core';
+import { Card, Image, Overlay, Paper, Stack, Text } from '@mantine/core';
+import { IconSquareCheck, IconSquare } from '@tabler/icons-react';
 
-import { CompositeChildProps, useCompositeContext } from '@bccampus/mantinex-composite';
-import { PersonProfile } from './_data';
+import {
+  CompositeItemProps,
+  CompositeItemSelectionProps,
+  useCompositeContext,
+} from '@bccampus/react-composite';
 import classes from './Composite.grid.module.css';
+import type { PersonProfile } from './_data';
 
 export const PersonCardCell = memo(
-  ({ item, selected, disabled, ...rest }: CompositeChildProps<PersonProfile>) => {
+  ({
+    item,
+
+    selected,
+    onSelectMouseEventHandler,
+
+    ...rest
+  }: CompositeItemProps<PersonProfile> & CompositeItemSelectionProps) => {
     const ctx = useCompositeContext();
 
     const labelId = useId();
@@ -14,15 +26,15 @@ export const PersonCardCell = memo(
 
     return (
       <Paper
-        shadow="sm"
+        shadow="md"
         radius="md"
         {...rest}
-        aria-selected={selected}
         className={classes.gridcellCard}
         aria-labelledby={labelId}
         aria-describedby={descId}
+        onClickCapture={onSelectMouseEventHandler}
       >
-        <Card>
+        <Card radius="md">
           <Card.Section>
             <Image src={item.image} height={200} alt="" role="presentation" fit="cover" />
           </Card.Section>
@@ -40,16 +52,8 @@ export const PersonCardCell = memo(
             {item.bio}
           </Text>
 
-          <Overlay display={ctx.selectionMode ? 'block' : undefined}>
-            <Checkbox
-              tabIndex={-1}
-              checked={selected}
-              disabled={disabled}
-              readOnly
-              aria-hidden
-              size="md"
-              radius={ctx.multiple ? 'sm' : 'lg'}
-            />
+          <Overlay display={ctx.selection?.selectionMode ? 'block' : undefined}>
+            {selected ? <IconSquareCheck /> : <IconSquare />}
           </Overlay>
         </Card>
       </Paper>

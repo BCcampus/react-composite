@@ -1,0 +1,7 @@
+.bcc-react-composite-root {
+  user-select: none;
+}
+
+.bcc-react-composite-root [aria-hidden] {
+  display: none;
+}

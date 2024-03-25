@@ -1,86 +1,270 @@
-import { AriaRole, Key, MouseEvent, ReactElement } from 'react';
-import { BoxProps } from '@mantine/core';
-import type { FocusOptions } from './FocusManager/FocusManager.types';
-import { SelectionOptions } from './SelectionManager/SelectionManager';
+import React from 'react';
+import type {
+  FocusEventHandler,
+  HTMLAttributes,
+  Key,
+  KeyboardEventHandler,
+  MouseEvent,
+  ReactElement,
+} from 'react';
 
-export type CompositeRole = 'listbox' | 'grid' | 'tree' | 'treegrid';
-export type CompositeChildRole = 'option' | 'gridcell' | 'treeitem' | 'row';
+export type CompositeType =
+  | 'VerticalListbox'
+  | 'HorizontalListbox'
+  | 'LayoutGrid'
+  | 'DataGrid'
+  | 'TreeView'
+  | 'TreeGrid';
 
-export interface CompositeChildRenderProps {
+export type CompositeRootRole = 'listbox' | 'grid' | 'tree' | 'treegrid';
+export type CompositeGroupRole = 'group' | 'rowgroup' | 'row' | 'treeitem';
+export type CompositeItemRole = 'option' | 'gridcell' | 'treeitem' | 'row';
+
+export interface CompositeRoles {
+  root: CompositeRootRole;
+  group: CompositeGroupRole;
+  item: CompositeItemRole;
+}
+
+export interface CompositeItemMeta {
+  element: HTMLElement | undefined;
+  index: number;
+  row: number;
+  col: number;
+}
+
+type InitialFocusTarget = 'LastFocusedItem' | 'SelectedItem' | 'FirstItem';
+
+export interface FocusOptions {
+  pageSize?: number;
+  loop?: boolean;
+  moveToNextRow?: boolean;
+  moveToNextColumn?: boolean;
+  typeaheadSearchDelay?: number;
+  typeaheadResetDelay?: number;
+  includeGroups?: boolean;
+  includeDisabledItems?: boolean;
+  initialFocusTarget?: InitialFocusTarget;
+}
+
+type AriaSelectionStateAttribute = 'aria-selected' | 'aria-checked' | 'aria-pressed';
+export interface SelectionOptions {
+  multiple?: boolean;
+  ariaStateAttribute?: AriaSelectionStateAttribute;
+  // Only applys to single-select widgets
+  followFocus?: boolean;
+  trackSelectioMode?: boolean;
+  allowGroupSelection?: boolean;
+  makeInferredSelection?: boolean;
+}
+
+export interface ExpansionOptions {
+  multiple?: boolean;
+  defaultExpanded?: boolean;
+
+  beforeExpand?: (key: Key, path: number[]) => Promise<boolean | void> | boolean | void;
+  afterExpand?: (key: Key, path: number[]) => Promise<boolean | void> | boolean | void;
+}
+
+export type ExpansionState = 'None' | 'Collapsed' | 'Expanding' | 'Expanded';
+
+export interface InternalItemProps {
   key: Key;
-  role: AriaRole;
+  visible: boolean;
+  childrenCount: number | null;
+  expansionState: ExpansionState;
+  path: number[];
+  level?: number;
+  setSize?: number;
+  posInSet?: number;
+  selected?: boolean;
+  disabled?: boolean;
+  parentMeta?: InternalItemProps;
+}
+
+export type InternalItem<T> = { data: T; meta: InternalItemProps };
+
+export interface CompositeItemElementProps {
+  key: Key;
+  role: CompositeGroupRole | CompositeItemRole;
+  className: string;
+  children?: ReactElement | ReactElement[];
+
   'data-item-key': string;
+  'data-item-path': string;
+
+  'data-indeterminate'?: boolean;
+
+  'aria-hidden'?: boolean;
   'aria-selected'?: boolean;
+  'aria-checked'?: boolean;
+  'aria-pressed'?: boolean;
   'aria-disabled'?: boolean;
-  className?: string;
-  onMouseDown?: (event: MouseEvent<HTMLElement>) => void;
-}
-export interface CompositeItemRenderStates {
-  selected: boolean;
-  disabled: boolean;
+  'aria-expanded'?: boolean;
+  'aria-level'?: number;
+  'aria-setsize'?: number;
+  'aria-posinset'?: number;
+
+  onClickCapture: (event: MouseEvent) => void;
 }
 
-export type CompositeItemRenderFn<T> = (
-  item: T,
-  states: CompositeItemRenderStates,
-  props: CompositeChildRenderProps,
-  index: number
-) => ReactElement;
+export interface CompositeItemExpansionProps {
+  expansionState: ExpansionState;
+  onExpandMouseEventHandler: (event: MouseEvent) => void;
+}
 
-export interface CompositeChildProps<T = any>
-  extends Partial<CompositeItemRenderStates>,
-    Partial<CompositeChildRenderProps> {
+export interface CompositeItemSelectionProps {
+  selected: boolean | null;
+  onSelectMouseEventHandler: (event: MouseEvent) => void;
+}
+
+export interface CompositeItemProps<T = any> extends CompositeItemElementProps {
   item: T;
   index?: number;
 }
 
-export interface CompositeSelectionState {
+export type CompositeItemRenderer<T> = (
+  props: CompositeItemProps<T>,
+  states: CompositeItemExpansionProps & CompositeItemSelectionProps
+) => ReactElement;
+
+export type SelectionState = {
+  selected: Set<Key>;
+  indeterminate?: Set<Key>;
+};
+
+export interface CompositeSelectionProps {
   /** Selected keys for controlled state */
-  value?: Key[];
+  selectionState?: SelectionState;
 
   /** Initial selected keys for uncontrolled state */
-  defaultValue?: Key[];
+  defaultSelectionState?: SelectionState;
 
   /** Controlled state onChange handler */
-  onChange?: (value: Key[]) => void;
+  onSelectionChange?: (value: SelectionState) => void;
 }
 
-export interface CompositeBaseProps<T> extends BoxProps, CompositeSelectionState {
+export type CompositeExpansionProps = {
+  /** Selected keys for controlled state */
+  expandedKeys?: Set<Key>;
+
+  /** Initial selected keys for uncontrolled state */
+  defaultExpandedKeys?: Set<Key>;
+
+  /** Controlled state onChange handler */
+  onExpansionChange?: (state: Set<Key>) => void;
+};
+
+export interface CompsiteRootProps {
+  id: string | undefined;
+  ref: any;
+  className: string | undefined;
+  role: CompositeRootRole;
+  onKeyDown: KeyboardEventHandler;
+  onFocus: FocusEventHandler;
+  onBlur: FocusEventHandler;
+  children: React.JSX.Element;
+  'aria-multiselectable'?: boolean | 'true' | 'false' | undefined;
+  'aria-orientation'?: 'horizontal' | 'vertical' | undefined;
+}
+
+export interface CompositeBaseProps<T> extends CompositeSelectionProps, CompositeExpansionProps {
   /** Element id; auto generated by default */
   id?: string;
-  /** Render function for focusable elements like list items and grid cells */
-  renderItem: CompositeItemRenderFn<T>;
+
+  /** */
+  type: CompositeType;
+
   /** Data to render */
   items: T[];
-  /** Function to get item key. Default: (item: any) => (item.id ?? item.key) */
+
+  className?: string | undefined;
+
+  /** Render function for focusable elements like list items and grid cells */
+  renderGroup?: CompositeItemRenderer<T>;
+
+  /** Render function for focusable elements like list items and grid cells */
+  renderItem: CompositeItemRenderer<T>;
+
+  /** Function to get item key. Default: `(item: any) => (item.id ?? item.key)` */
   getItemKey?: (item: T) => Key;
+
+  /** Function to get item children. Default: `(item: any) => item.children` */
+  getChildren?: (item: T) => T[] | undefined;
+
+  /** Function to determine the number of items in the container. Default: `(item: any) => getChildren(item)?.length ?? 0` */
+  getChildrenCount?: (item: T) => number;
+
+  /**
+   * Function to determine whether the item is container. Default: `(item: any) => Array.isArray(getChildren(item))`
+   */
+  isContainer?: (item: T) => boolean;
+
   /** Disabled keys */
   disabledKeys?: Key[];
-  /** Default: { pageSize: 5, loop: false, moveToNextColumn: false, moveToNextRow: false } */
+
+  /** Focus options; default: `{
+   *  pageSize: 5,
+   *  loop: false,
+   *  moveToNextColumn: false,
+   *  moveToNextRow: false,
+   *  includeGroups: false,
+   *  includeDisabledItems: false,
+   *  typeaheadSearchDelay: 100,
+   *  typeaheadResetDelay: 250,
+   *  initialFocusTarget: 'SelectedItem',
+   * }`
+   */
   focusOptions?: FocusOptions;
-  /** Default: { multiple: false, followFocus: false, trackSelectioMode: false } */
-  selectionOptions?: SelectionOptions;
+
+  /** Selection feature disabled | Options;
+   * default: `{
+   *  multiple: false,
+   *  followFocus: false,
+   *  allowGroupSelection: false,
+   *  makeInferredSelection: false,
+   *  trackSelectioMode: false ,
+   *  ariaStateAttribute: 'aria-selected'
+   * }`
+   */
+  selectionOptions?: false | SelectionOptions;
+
+  /** Expansion feature disabled | Options; default: `{
+   *  multiple: false,
+   *  defaultExpanded: false
+   * }`
+   * */
+  expansionOptions?: false | ExpansionOptions;
+
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
 }
 
-export interface CompositeListboxProps {
-  role: 'listbox';
-  navigableChildRole: 'option';
+interface CompositeDivProps<T>
+  extends CompositeBaseProps<T>,
+    Omit<HTMLAttributes<HTMLDivElement>, 'children'> {
+  renderRoot?: never;
+
+  onFocus?: FocusEventHandler;
+  onBlur?: FocusEventHandler;
 }
 
-export interface CompositeGridProps {
-  role: 'grid' | 'treegrid';
-  navigableChildRole: 'row' | 'gridcell';
+interface CompositeRendererProps<T> extends CompositeBaseProps<T> {
+  /** Render function for focusable elements like list items and grid cells */
+  renderRoot?: (props: CompsiteRootProps) => React.ReactElement;
 }
 
-export interface CompositeTreeProps {
-  role: 'tree';
-  navigableChildRole: 'treeitem';
-}
-
-export type CompositeProps<T> = CompositeBaseProps<T> &
-  (CompositeListboxProps | CompositeGridProps | CompositeTreeProps);
+export type CompositeProps<T> = CompositeRendererProps<T> | CompositeDivProps<T>;
 
 export interface CompositeContextValue {
-  multiple: boolean;
-  selectionMode: boolean;
+  selection?: {
+    multiple: boolean;
+    selectionMode: boolean;
+  };
+}
+
+declare module 'react' {
+  function forwardRef<T, P = {}>(
+    render: (props: P, ref: React.ForwardedRef<T>) => React.ReactElement | null
+  ): (props: P & React.RefAttributes<T>) => React.ReactElement | null;
 }

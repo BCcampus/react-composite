@@ -1,9 +1,73 @@
 import { InstallScript } from './components/InstallScript/InstallScript';
 import * as demos from './demos';
 
+## Introduction
+
+- What is composite widgets?
+- What does this component do?
+
+https://w3c.github.io/aria/#composite
+
+```
+Authors SHOULD ensure that a composite widget exists as a single navigation stop
+within the larger navigation system of the web page. Once the composite widget has focus,
+authors SHOULD provide a separate navigation mechanism for users to navigate to elements
+that are accessibility descendants of the composite element.
+```
+
+- grid
+  - treegrid
+- select
+  - listbox
+  - menu
+  - radiogroup
+  - tree
+- spinbutton
+- tablist
+
+## Basic Usage
+
+- Demo: Basic vertical list box
+
+## Focus Management
+
+- How focus mananegement works?
+
+### Options
+
+- Focus options
+
+### Keyboard Interaction
+
+- Focus keyboard shotcuts
+
+## Selection Management
+
+- How selection mananegement works?
+
+### Options
+
+- Selection options
+
+### Keyboard Interaction
+
+- Selection keyboard shotcuts
+
+## Expansion Management
+
+- How expansion mananegement works?
+
+### Options
+
+- Expansion options
+
+### Keyboard Interaction
+
+- Expansion keyboard shotcuts
+
 ## Installation
 
-<InstallScript packages="@bccampus/mantinex-composite" />
+<InstallScript packages="@bccampus/react-composite" />
 
 ## Usage
 
@@ -18,10 +82,6 @@ Currently, it provides focus behaviors for vertical lists, horizontal lists, and
 
 <Demo data={demos.imageGrid} />
 
-## Selection state
-
-<Demo data={demos.controlledComposite} />
-
 ### Defining custom keys
 
 By default, `Composite` uses `id` or `key` property of items as their unique identifier.
@@ -33,6 +93,10 @@ If your items do not contain any of these properties, you can use `getItemKey` p
   getItemKey={(item) => item.slug}
 />
 ```
+
+## Selection state
+
+<Demo data={demos.controlledComposite} />
 
 ## Disabled items
 

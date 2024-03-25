@@ -1,6 +1,7 @@
+/* eslint-disable jsx-a11y/no-static-element-interactions */
 import React from 'react';
-import { render, tests, screen } from '@mantine-tests/core';
-import { Composite, CompositeProps, CompositeItemRenderFn } from '.';
+import { render, screen } from '@testing-library/react';
+import { Composite, CompositeItemRenderer } from '.';
 
 interface TestItem {
   id: number;
@@ -14,30 +15,20 @@ const items: TestItem[] = [
   { id: 5, label: 'Item 5' },
 ];
 
-const renderItem: CompositeItemRenderFn<TestItem> = (item, { selected }, props) => (
-  <div {...props}>
+const renderItem: CompositeItemRenderer<TestItem> = (
+  { item, ...props },
+  { selected, onExpandMouseEventHandler }
+) => (
+  <div {...props} onClickCapture={onExpandMouseEventHandler}>
     {item.label} {selected ? '[SELECTED]' : ''}{' '}
   </div>
 );
 
-const defaultProps: CompositeProps<TestItem> = {
-  items: [],
-  role: 'listbox',
-  navigableChildRole: 'option',
-  renderItem,
-};
-
-describe('@bccampus/mantinex-composite', () => {
-  tests.itIsPolymorphic<CompositeProps<TestItem>>({
-    component: Composite,
-    props: defaultProps,
-  });
-
+describe('@bccampus/react-composite', () => {
   it('renders without crashing', () => {
     render(
       <Composite
-        role="listbox"
-        navigableChildRole="option"
+        type="VerticalListbox"
         items={items}
         focusOptions={{
           loop: true,
@@ -48,6 +39,7 @@ describe('@bccampus/mantinex-composite', () => {
         renderItem={renderItem}
       />
     );
+
     expect(screen.getByText('Item 1')).toBeInTheDocument();
   });
 });

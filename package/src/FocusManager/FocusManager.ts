@@ -1,104 +1,195 @@
-import { RefObject } from 'react';
-// eslint-disable-next-line import/no-cycle
+import type { RefObject, Key, KeyboardEvent, MouseEvent } from 'react';
+import type {
+  CompositeItemMeta,
+  FocusOptions,
+  CompositeType,
+  CompositeRoles,
+} from '../Composite.types';
+
 import { DisabledEventHandler } from './EventHandlers/DisabledEventHandler';
-import { FocusManagerEventHandler } from './EventHandlers/FocusManagerEventHandler';
+import { AbstractEventHandler } from './EventHandlers/AbstractEventHandler';
 import { HorizontalListEventHandler } from './EventHandlers/HorizontalListEventHandler';
 import { LayoutGridEventHandler } from './EventHandlers/LayoutGridEventHandler';
 import { VerticalListEventHandler } from './EventHandlers/VerticalListEventHandler';
-import { FocusObject, FocusOptions } from './FocusManager.types';
+import { TreeViewEventHandler } from './EventHandlers/TreeViewEventHandler';
+import { TypeaheadHelper } from './TypeaheadHelper';
 
 const navigableSelector = 'a,button,input,textarea,select,details,[tabindex]';
 
+const patternRoles: Record<CompositeType, CompositeRoles> = {
+  VerticalListbox: { root: 'listbox', group: 'group', item: 'option' },
+  HorizontalListbox: { root: 'listbox', group: 'group', item: 'option' },
+  LayoutGrid: { root: 'grid', group: 'row', item: 'gridcell' },
+  DataGrid: { root: 'grid', group: 'rowgroup', item: 'row' },
+  TreeView: { root: 'tree', group: 'treeitem', item: 'treeitem' },
+  TreeGrid: { root: 'treegrid', group: 'rowgroup', item: 'row' },
+};
+
 export class FocusManager {
   private ref: RefObject<HTMLElement>;
-  private _descendants: NodeListOf<HTMLElement> | undefined = undefined;
+  get root() {
+    return this.ref.current;
+  }
 
-  protected _focused: FocusObject = { element: undefined, index: -1, row: 0, col: 0 };
+  private _itemSelectors: string[] = [];
+  get itemSelectors() {
+    return this._itemSelectors;
+  }
+  private _items: NodeListOf<HTMLElement> | undefined = undefined;
+  get items() {
+    return this._items;
+  }
+  get itemCount() {
+    return this._items?.length ?? 0;
+  }
 
-  protected _lastDescendantIndex: number = 0;
-  protected _focusableDecendantCount: number = 0;
+  private _lastItemIndex: number = 0;
+  get lastItemIndex() {
+    return this._lastItemIndex;
+  }
 
-  protected _area = { cols: 0, rows: 0 };
-  protected _options: FocusOptions;
-  protected _navigableChildRole: string;
-  protected _eventHandler: FocusManagerEventHandler | undefined;
-
+  private _area = { cols: 0, rows: 0 };
   get area() {
     return this._area;
   }
-  get options() {
-    return this._options;
+
+  private _type: CompositeType;
+  get type() {
+    return this._type;
   }
 
+  private _roles: CompositeRoles;
+  get roles() {
+    return this._roles;
+  }
+
+  private _prevFocusedIndex: number = -1;
+  get prevFocusedIndex() {
+    return this._prevFocusedIndex;
+  }
+
+  private _firstFocusable: CompositeItemMeta | undefined = undefined;
+  get firstFocusable() {
+    return this._firstFocusable;
+  }
+
+  private _focused: CompositeItemMeta = { element: undefined, index: -1, row: 0, col: 0 };
   get focused() {
     return this._focused;
   }
 
-  get lastDescendantIndex() {
-    return this._lastDescendantIndex;
+  private _options: Required<FocusOptions>;
+  get options() {
+    return this._options;
   }
 
-  get descendants() {
-    return this._descendants;
-  }
+  private _eventHandler: AbstractEventHandler | undefined;
+  private _typeahead: TypeaheadHelper;
 
-  get descendantCount() {
-    return this._descendants?.length ?? 0;
-  }
-  get focusableDecendantCount() {
-    return this._focusableDecendantCount;
-  }
-
-  get eventHandler() {
-    return this._eventHandler;
-  }
-
-  constructor(ref: RefObject<HTMLElement>, navigableChildRole: string, options: FocusOptions) {
+  constructor(ref: RefObject<HTMLElement>, pattern: CompositeType, options: FocusOptions) {
     this.ref = ref;
-    this._navigableChildRole = navigableChildRole;
+    this._type = pattern;
+    this._roles = patternRoles[this._type];
 
     this._options = {
-      loop: true,
-      moveToNextRow: true,
-      moveToNextColumn: true,
+      pageSize: 5,
+      loop: false,
+      moveToNextColumn: false,
+      moveToNextRow: false,
+      includeGroups: false,
+      includeDisabledItems: false,
+      typeaheadSearchDelay: 100,
+      typeaheadResetDelay: 250,
+      initialFocusTarget: 'SelectedItem',
       ...options,
     };
+
+    this._typeahead = new TypeaheadHelper(this, {
+      typeaheadResetDelay: this._options.typeaheadResetDelay,
+      typeaheadSearchDelay: this._options.typeaheadSearchDelay,
+    });
+    this._itemSelectors = [`[role='${this._roles.item}']`];
+
+    if (this._options.includeGroups === true) {
+      this._itemSelectors.push(`[role='${this._roles.group}']`);
+    }
   }
 
   init() {
     if (this.ref.current) {
       this.ref.current.tabIndex = -1;
+      this.removeItemChildrenFromTabOrder();
 
-      this.ref.current.querySelectorAll(navigableSelector).forEach((el) => {
-        el.setAttribute('tabindex', '-1');
-      });
+      this._items = this.getCompositeItems();
 
-      this._descendants = this.ref.current.querySelectorAll(`[role='${this._navigableChildRole}']`);
+      if (this._items.length > 0) {
+        this._lastItemIndex = this._items.length - 1;
 
-      if (this._descendants.length > 0) {
-        this._lastDescendantIndex = this._descendants.length - 1;
+        if (this._roles.root === 'grid' || this._roles.root === 'treegrid') {
+          this.calculateGridShape();
+        }
+      }
 
-        this._focusableDecendantCount = 0;
-        this._descendants.forEach((descendant) => {
-          if (this.isFocusableElement(descendant)) this._focusableDecendantCount += 1;
-        });
+      if (this.items) {
+        this._firstFocusable = this.findFirstFocusable();
+        if (this._focused.element) {
+          // Restore the focus
+          const newIndex = this.getItemIndex(this._focused.element);
+          this.focusAt(newIndex);
+        } else this.setInitialFocus(true);
 
-        this.calculateArea();
-        this.setBehaviour();
-        this.setEventHandlers();
+        if (this.type === 'LayoutGrid') {
+          this._eventHandler = new LayoutGridEventHandler(this);
+        } else if (this.type === 'TreeView') {
+          this._eventHandler = new TreeViewEventHandler(this);
+        } else if (this.type === 'HorizontalListbox') {
+          this._eventHandler = new HorizontalListEventHandler(this);
+        } else if (this.type === 'VerticalListbox') {
+          this._eventHandler = new VerticalListEventHandler(this);
+        } else {
+          this._eventHandler = new DisabledEventHandler(this);
+        }
+      } else {
+        if (this.root) this.root.tabIndex = 0;
+        this._eventHandler = new DisabledEventHandler(this);
       }
     }
   }
 
-  private calculateArea() {
-    if (this._descendants && this._descendants.length > 0) {
-      const refRect = this._descendants[0].getBoundingClientRect();
+  private getCompositeItems(): NodeListOf<HTMLElement> {
+    return this.ref.current.querySelectorAll(this._itemSelectors.join(','));
+  }
+
+  /**
+   * Removes navigable children of composite items from tab order
+   */
+  private removeItemChildrenFromTabOrder() {
+    this.ref.current.querySelectorAll(navigableSelector).forEach((el) => {
+      el.setAttribute('tabindex', '-1');
+    });
+  }
+
+  isFocusableItem(item?: HTMLElement) {
+    if (!item) return false;
+    return (
+      (this._options.includeDisabledItems || item.ariaDisabled !== 'true') &&
+      item.ariaHidden !== 'true'
+    );
+  }
+
+  isFocusableItemIndex(index: number) {
+    return this.isFocusableItem(this.items?.[index]);
+  }
+
+  private calculateGridShape() {
+    if (this._items && this._items.length > 0) {
+      const refRect = this._items[0].getBoundingClientRect();
       const refRectTop = Math.floor(refRect.top + (refRect.bottom - refRect.top) / 2);
       let refRectLeft = Math.floor(refRect.left + (refRect.right - refRect.left) / 2);
 
       this._area = { cols: 1, rows: 1 };
-      for (let index = 1; index < this._descendants.length; index += 1) {
-        const rect = this._descendants[index].getBoundingClientRect();
+      for (let index = 1; index < this._items.length; index += 1) {
+        const rect = this._items[index].getBoundingClientRect();
         const rectTop = Math.floor(rect.top + (rect.bottom - rect.top) / 2);
         const rectLeft = Math.floor(rect.left + (rect.right - rect.left) / 2);
 
@@ -107,81 +198,48 @@ export class FocusManager {
           refRectLeft = rectLeft;
         } else if (rectTop !== refRectTop) break;
       }
-      this._area.rows = Math.ceil(this._descendants.length / this._area.cols);
+      this._area.rows = Math.ceil(this._items.length / this._area.cols);
     }
   }
 
-  private setBehaviour() {
-    if (this._options.behaviour === undefined) {
-      switch (this._navigableChildRole) {
-        case 'option':
-          this._options.behaviour = this._area.cols > 1 ? 'HorizontalList' : 'VerticalList';
-          break;
-        case 'gridcell':
-          this._options.behaviour = 'LayoutGrid';
-          break;
-        case 'row':
-          this._options.behaviour = 'DataGrid';
-          break;
-        case 'treeitem':
-          this._options.behaviour = 'Tree';
-          break;
-        default:
-          this._options.behaviour =
-            this._area.rows > 1 && this._area.cols > 1
-              ? 'LayoutGrid'
-              : this._area.rows === 1 && this._area.cols > 1
-                ? 'HorizontalList'
-                : 'VerticalList';
-          break;
-      }
-    }
+  getItemKey(el: HTMLElement) {
+    const _key = el?.dataset.itemKey;
+
+    if (_key === undefined) throw new Error('Undefined item key.');
+
+    return JSON.parse(_key) as Key;
   }
 
-  private setEventHandlers() {
-    if (this._descendants && !this._descendants[this._focused.index]) {
-      const firstFocusable = this.findFirstFocusable();
-      if (firstFocusable) {
-        this._focused = firstFocusable;
-        this._descendants[this._focused.index].tabIndex = 0;
+  getItemPath(el: HTMLElement) {
+    const _path = el?.dataset.itemPath;
 
-        if (this._options.behaviour === 'LayoutGrid') {
-          this._eventHandler = new LayoutGridEventHandler(this);
-        } else if (this._options.behaviour === 'HorizontalList') {
-          this._eventHandler = new HorizontalListEventHandler(this);
-        } else {
-          this._eventHandler = new VerticalListEventHandler(this);
-        }
-      } else {
-        if (this.ref.current) this.ref.current.tabIndex = 0;
-        this._eventHandler = new DisabledEventHandler(this);
-      }
-    }
+    return _path ? (JSON.parse(_path) as number[]) : undefined;
   }
 
-  isFocusableElement(element?: HTMLElement) {
-    if (!element) return false;
-    return element.ariaDisabled !== 'true';
+  getItemKeyAt(index: number) {
+    return this.getItemKey(this._items?.[index]);
   }
 
-  isFocusableIndex(index: number) {
-    return this.isFocusableElement(this._descendants?.[index]);
-  }
-
-  getFocusObject(index: number) {
+  getItemAt(index: number): CompositeItemMeta {
     return {
+      element: this._items?.[index],
       index,
-      element: this._descendants?.[index],
-      row: 1 + Math.floor(index / this._area.cols),
-      col: 1 + (index % this._area.cols),
+      row: this._area.cols > 0 ? 1 + Math.floor(index / this._area.cols) : 0,
+      col: this._area.cols > 0 ? 1 + (index % this._area.cols) : 0,
     };
   }
 
-  findFirstFocusable() {
-    if (this._descendants) {
-      for (let i = 0; i < this._descendants.length; i += 1) {
-        if (this.isFocusableIndex(i)) {
-          return this.getFocusObject(i);
+  getItemByKey(key: Key): HTMLElement {
+    return this.root.querySelector(`[data-item-key='${JSON.stringify(key)}']`);
+  }
+
+  getItemIndex(el: HTMLElement) {
+    if (!el) return undefined;
+
+    if (this._items) {
+      for (let i = 0; i <= this._lastItemIndex; i += 1) {
+        if (this._items[i] === el) {
+          return i;
         }
       }
     }
@@ -189,27 +247,119 @@ export class FocusManager {
     return undefined;
   }
 
-  focus(index: number) {
-    if (this._descendants && this._focused.index > -1 && this.isFocusableIndex(index)) {
-      this._descendants[this._focused.index].tabIndex = -1;
-
-      this._descendants[index].tabIndex = 0;
-      this._descendants[index].focus();
-
-      this._focused = this.getFocusObject(index);
-    }
+  hasCompositeRole(item: Element) {
+    return item.role === this._roles.item || item.role === this._roles.group;
   }
 
-  getItemIndex(el: EventTarget) {
-    if (!el) return;
+  getLabelAt(index: number) {
+    let label = this.items[index].innerText?.trim();
+    if (label) return label;
 
-    if (this._descendants) {
-      for (let i = 0; i <= this._lastDescendantIndex; i += 1) {
-        if (this._descendants[i] === el) {
-          // eslint-disable-next-line consistent-return
-          return i;
+    label = this.items[index].ariaLabel?.trim();
+    if (label) return label;
+
+    label = this.items[index].title?.trim();
+    if (label) return label;
+
+    return null;
+  }
+
+  findFirstFocusable() {
+    if (this.items) {
+      for (let i = 0; i < this.items.length; i += 1) {
+        if (this.isFocusableItemIndex(i)) {
+          return this.getItemAt(i);
         }
       }
     }
+
+    return undefined;
+  }
+
+  setInitialFocus(silent: boolean = false) {
+    if (this._firstFocusable?.element) {
+      this.focusAt(this._firstFocusable.index, silent);
+    } else if (this.root) {
+      this.root.tabIndex = 0;
+    }
+  }
+
+  getParent = (el: HTMLElement, traversalDepth: number = 10): HTMLElement | undefined => {
+    let item = el.parentElement;
+    while (traversalDepth > 0) {
+      if (!this.root.contains(item)) return undefined;
+      if (this.hasCompositeRole(item)) return item;
+      item = item.parentElement;
+      traversalDepth -= 1;
+    }
+
+    return undefined;
+  };
+
+  getAncestors = (el: HTMLElement): HTMLElement[] => {
+    const parents: HTMLElement[] = [];
+    let item = this.getParent(el);
+    while (item) {
+      if (!this.root.contains(item)) break;
+      else parents.push(item);
+
+      item = this.getParent(item);
+    }
+
+    return parents;
+  };
+
+  getSiblings(el: HTMLElement) {
+    const siblings: HTMLElement[] = [];
+    let sibling = el.parentElement.firstElementChild;
+    while (sibling) {
+      if (sibling !== el && this.hasCompositeRole(sibling)) siblings.push(sibling as HTMLElement);
+      sibling = sibling.nextElementSibling;
+    }
+
+    return siblings;
+  }
+
+  getChildren(el: HTMLElement) {
+    const selector = this._itemSelectors.join(',');
+    const children = el.querySelectorAll<HTMLElement>(selector);
+
+    return children;
+  }
+
+  focus(el: HTMLElement) {
+    const current = this.getItemIndex(el);
+
+    if (current !== undefined) return this.focusAt(current);
+
+    return false;
+  }
+
+  focusAt(index: number, silent: boolean = false) {
+    if (this.items && this.isFocusableItemIndex(index)) {
+      if (this._focused.index > -1 && this.items[this._focused.index]) {
+        this.items[this._focused.index].tabIndex = -1;
+      }
+      this._prevFocusedIndex = this._focused.index;
+
+      this._focused = this.getItemAt(index);
+      this._focused.element.tabIndex = 0;
+      if (silent === false) this._focused.element.focus();
+
+      return true;
+    }
+    return false;
+  }
+
+  focusTypeaheadMatch(char: string) {
+    this._typeahead.focus(char, this.focused.index);
+  }
+
+  keyboardEventHandler(event: KeyboardEvent) {
+    return this._eventHandler.keyboardEventHandler(event);
+  }
+
+  mouseEventHandler(event: MouseEvent) {
+    return this._eventHandler.mouseEventHandler(event);
   }
 }

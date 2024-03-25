@@ -25,11 +25,12 @@ export interface PackageData {
 }
 
 export const PACKAGE_DATA: PackageData = {
-  packageName: '@bccampus/mantinex-composite',
-  packageDescription: 'Create a Composite components with focus and selection management',
-  mdxFileUrl: 'https://github.com/bccampus/mantinex-composite/blob/master/docs/pages/index.mdx',
-  repositoryUrl: 'https://github.com/bccampus/mantinex-composite',
-  licenseUrl: 'https://github.com/bccampus/mantinex-composite/blob/master/LICENSE',
+  packageName: '@bccampus/react-composite',
+  packageDescription:
+    'Base React component to create a composite components, like Listbox,TreeView, with selection and expansion management',
+  mdxFileUrl: 'https://github.com/bccampus/react-composite/blob/master/docs/pages/index.mdx',
+  repositoryUrl: 'https://github.com/bccampus/react-composite',
+  licenseUrl: 'https://github.com/bccampus/react-composite/blob/master/LICENSE',
   author: {
     name: 'Kemal Tunador',
     githubUsername: 'ktunador',

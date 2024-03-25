@@ -2,4 +2,58 @@
   &:focus-visible {
     outline: 0.125rem solid var(--mantine-primary-color-filled-hover);
   }
+
+  &[aria-disabled='true'] {
+    @mixin light {
+      background-color: var(--mantine-color-gray-3);
+      color: var(--mantine-color-gray-6);
+    }
+
+    @mixin dark {
+      background-color: var(--mantine-color-gray-9);
+      color: var(--mantine-color-gray-6);
+    }
+  }
+
+  &[aria-selected='false'] :global(.tabler-icon) {
+    width: 2rem;
+    height: 2rem;
+
+    @mixin light {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-color-white);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-4);
+      fill: var(--mantine-color-gray-3);
+    }
+  }
+
+  &[aria-selected='true'] :global(.tabler-icon) {
+    width: 2rem;
+    height: 2rem;
+
+    @mixin light {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-primary-color-7);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-4);
+      fill: var(--mantine-primary-color-9);
+    }
+  }
+
+  &[aria-disabled='true'] :global(.tabler-icon) {
+    @mixin light {
+      color: var(--mantine-color-gray-4);
+      fill: var(--mantine-color-gray-3);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-6);
+      fill: var(--mantine-color-gray-9);
+    }
+  }
 }

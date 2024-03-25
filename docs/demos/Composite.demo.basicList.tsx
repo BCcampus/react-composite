@@ -1,29 +1,37 @@
 import React from 'react';
-import { Checkbox, Paper } from '@mantine/core';
-import { Composite } from '@bccampus/mantinex-composite';
+import { Group, Paper, Text } from '@mantine/core';
+import { Composite, FocusOptions, SelectionOptions } from '@bccampus/react-composite';
 import { MantineDemo } from '@mantinex/demo';
-import { people, PersonProfile } from './_data';
+import { IconSquareCheck, IconSquare } from '@tabler/icons-react';
+import { people } from './_data';
 import classes from './Composite.demo.module.css';
 
+const focusOptions: FocusOptions = { loop: true };
+const selectionOptions: SelectionOptions = { multiple: true };
+const disabledKeys = [3, 4];
+const defaultSelectedKeys = new Set([1, 8]);
 function Demo() {
   return (
     <Composite
-      role="listbox"
-      navigableChildRole="option"
+      type="VerticalListbox"
       items={people}
-      defaultValue={[1, 8]}
-      disabledKeys={[3, 4]}
-      focusOptions={{ loop: true }}
-      selectionOptions={{ multiple: true }}
-      renderItem={(item: PersonProfile, { selected, disabled }, props) => (
+      defaultSelectionState={{ selected: defaultSelectedKeys }}
+      disabledKeys={disabledKeys}
+      focusOptions={focusOptions}
+      selectionOptions={selectionOptions}
+      renderItem={({ item, ...props }, { selected, onSelectMouseEventHandler }) => (
         <Paper {...props} withBorder p="xs" my="xs" miw="15rem" className={classes.compositeItem}>
-          <Checkbox
-            readOnly
-            checked={selected}
-            disabled={disabled}
-            label={item.fullname}
-            description={item.title}
-          />
+          <Group>
+            <div onClickCapture={onSelectMouseEventHandler}>
+              {selected ? <IconSquareCheck /> : <IconSquare />}
+            </div>
+            <div>
+              <Text fw={500}>{item.fullname}</Text>
+              <Text size="sm" c="dimmed">
+                {item.title}
+              </Text>
+            </div>
+          </Group>
         </Paper>
       )}
     />

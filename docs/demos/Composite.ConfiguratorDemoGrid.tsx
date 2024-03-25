@@ -1,14 +1,14 @@
 import React from 'react';
 import {
   Composite,
-  CompositeItemRenderFn,
+  CompositeItemRenderer,
   FocusOptions,
   SelectionOptions,
-} from '@bccampus/mantinex-composite';
+} from '@bccampus/react-composite';
 import classes from './Composite.grid.module.css';
 
 export interface DemoCompositeComponentProps<T> extends SelectionOptions, FocusOptions {
-  renderItem: CompositeItemRenderFn<T>;
+  renderItem: CompositeItemRenderer<T>;
   items: T[];
 }
 
@@ -26,14 +26,13 @@ export function ConfiguratorDemoGrid<T>({
   return (
     <Composite
       {...rest}
-      role="grid"
-      navigableChildRole="gridcell"
+      type="LayoutGrid"
       items={items}
       focusOptions={{ loop, moveToNextRow, moveToNextColumn }}
       selectionOptions={{ multiple, followFocus, trackSelectioMode }}
-      renderRoot={({ children, ...rootProps }) => (
-        <div {...rootProps} className={classes.grid}>
-          <div role="row" className={classes.row}>
+      renderRoot={({ role, children, ...rootProps }) => (
+        <div role={role} className={classes.grid}>
+          <div {...rootProps} role="row" className={classes.row}>
             {children}
           </div>
         </div>

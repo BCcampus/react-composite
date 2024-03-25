@@ -1,37 +1,34 @@
 import React from 'react';
-import { Composite, CompositeBaseProps } from '@bccampus/mantinex-composite';
+import { Composite, CompositeProps } from '@bccampus/react-composite';
 import classes from './Composite.grid.module.css';
 
 export function LayoutGrid<T>({
   items,
   getItemKey,
-  value,
-  defaultValue,
-  onChange,
+  selectionState,
+  defaultSelectionState,
+  onSelectionChange,
   disabledKeys,
   focusOptions,
   selectionOptions,
   renderItem,
-}: CompositeBaseProps<T>) {
+}: Omit<CompositeProps<T>, 'type'>) {
   return (
     <Composite
       // {...props}
-      role="grid"
-      navigableChildRole="gridcell"
+      type="LayoutGrid"
       disabledKeys={disabledKeys}
-      defaultValue={defaultValue}
-      value={value}
-      onChange={onChange}
+      defaultSelectionState={defaultSelectionState}
+      selectionState={selectionState}
+      onSelectionChange={onSelectionChange}
       focusOptions={focusOptions}
       selectionOptions={selectionOptions}
       items={items}
       getItemKey={getItemKey}
       renderItem={renderItem}
-      renderRoot={({ children, ...rootProps }) => (
-        <div {...rootProps} className={classes.grid}>
-          <div role="row" className={classes.row}>
-            {children}
-          </div>
+      renderRoot={({ role, ...rootProps }) => (
+        <div role={role} className={classes.grid}>
+          <div {...rootProps} role="row" className={classes.row} />
         </div>
       )}
     />

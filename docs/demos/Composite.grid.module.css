@@ -34,8 +34,8 @@
   }
 
   &:focus-visible {
-    outline: rem(2px) solid var(--mantine-color-blue-filled);
-    border-color: transparent;
+    outline: 0.25rem solid var(--mantine-color-blue-filled);
+    outline-offset: 0.25rem;
   }
 
   & > div {
@@ -71,6 +71,36 @@
 
     @mixin dark {
       --overlay-bg: rgba(36, 36, 36, 0.75);
+    }
+  }
+
+  &[aria-selected='false'] :global(.tabler-icon) {
+    width: 2rem;
+    height: 2rem;
+
+    @mixin light {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-color-gray-1);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-color-gray-7);
+    }
+  }
+
+  &[aria-selected='true'] :global(.tabler-icon) {
+    width: 2rem;
+    height: 2rem;
+
+    @mixin light {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-primary-color-7);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-3);
+      fill: var(--mantine-primary-color-7);
     }
   }
 }
