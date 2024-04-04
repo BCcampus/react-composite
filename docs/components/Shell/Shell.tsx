@@ -1,9 +1,15 @@
 import React from 'react';
 import cx from 'clsx';
 import { useHotkeys } from '@mantine/hooks';
-import { AppShell, Container, RemoveScroll, Group, useMantineColorScheme } from '@mantine/core';
-import { MantineLogo } from '@mantinex/mantine-logo';
-import { ColorSchemeControl, HeaderControls } from '@mantinex/mantine-header';
+import {
+  AppShell,
+  Container,
+  RemoveScroll,
+  useMantineColorScheme,
+  useComputedColorScheme,
+} from '@mantine/core';
+import { LogoBCcampus } from '@bccampus/media-kit';
+import { HeaderControls } from '@mantinex/mantine-header';
 import { PACKAGE_DATA } from '../../data';
 import classes from './Shell.module.css';
 
@@ -13,6 +19,7 @@ interface ShellProps {
 
 export function Shell({ children }: ShellProps) {
   const { toggleColorScheme } = useMantineColorScheme();
+  const colorScheme = useComputedColorScheme();
   useHotkeys([['mod + J', toggleColorScheme]]);
 
   return (
@@ -20,26 +27,22 @@ export function Shell({ children }: ShellProps) {
       <AppShell.Header className={RemoveScroll.classNames.zeroRight}>
         <Container size="lg" px="md" className={classes.inner}>
           <a
-            href="https://mantine.dev/"
+            href="https://bccmpus.ca/"
             target="_blank"
             className={cx('mantine-focus-auto', classes.logo)}
             rel="noreferrer"
           >
-            <MantineLogo size={30} />
+            <LogoBCcampus size="50%" variant={colorScheme === 'light' ? 'color' : 'white'} />
           </a>
 
           <HeaderControls
-            visibleFrom="sm"
+            visibleFrom="xs"
             githubLink={PACKAGE_DATA.repositoryUrl}
             discordLink=""
             withDirectionToggle={false}
             withSearch={false}
             withDiscord={false}
           />
-
-          <Group hiddenFrom="sm">
-            <ColorSchemeControl />
-          </Group>
         </Container>
       </AppShell.Header>
       <AppShell.Main>

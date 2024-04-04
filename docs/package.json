@@ -8,13 +8,13 @@
     "start": "next start"
   },
   "dependencies": {
+    "@bccampus/media-kit": "^0.1.0",
     "@bccampus/react-composite": "workspace:^",
     "@mantine/core": "7.5.1",
     "@mantine/hooks": "7.5.1",
     "@mantinex/demo": "^1.1.1",
     "@mantinex/dev-icons": "^1.0.2",
     "@mantinex/mantine-header": "^1.0.2",
-    "@mantinex/mantine-logo": "^1.0.1",
     "@mantinex/mantine-meta": "^1.0.2",
     "@mantinex/shiki": "^1.0.3",
     "@mdx-js/loader": "^3.0.0",

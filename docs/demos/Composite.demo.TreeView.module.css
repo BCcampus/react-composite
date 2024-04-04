@@ -1,0 +1,82 @@
+.DemoTreeViewGroup,
+.DemoTreeViewItem {
+  &[aria-disabled='true'] {
+    @mixin light {
+      color: var(--mantine-color-gray-6);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-dark-6);
+    }
+  }
+
+  &[aria-disabled='true'] * {
+    text-decoration: none;
+
+    @mixin light {
+      color: var(--mantine-color-gray-5);
+    }
+
+    @mixin dark {
+      color: var(--mantine-color-gray-7);
+    }
+  }
+
+  &[role='treeitem']:not([aria-level='1']) {
+    margin-left: 1rem;
+  }
+}
+
+.DemoTreeViewGroup {
+  outline: none;
+
+  & > :first-child {
+    padding: 0.25rem;
+  }
+
+  &[aria-selected='true'] > :first-child {
+    @mixin light {
+      color: var(--mantine-primary-color-8);
+    }
+
+    @mixin dark {
+      color: var(--mantine-primary-color-1);
+    }
+  }
+
+  &[data-indeterminate='true'] > :first-child {
+    @mixin light {
+      color: var(--mantine-primary-color-8);
+    }
+
+    @mixin dark {
+      color: var(--mantine-primary-color-1);
+    }
+  }
+
+  &:focus-visible > :first-child {
+    outline: 2px solid var(--mantine-primary-color-filled);
+    outline-offset: -2px;
+    border-color: transparent;
+  }
+}
+
+.DemoTreeViewItem {
+  padding: 0.25rem;
+
+  &[aria-selected='true'] {
+    @mixin light {
+      color: var(--mantine-primary-color-8);
+    }
+
+    @mixin dark {
+      color: var(--mantine-primary-color-1);
+    }
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--mantine-primary-color-filled);
+    outline-offset: -2px;
+    border-color: transparent;
+  }
+}

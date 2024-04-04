@@ -1858,6 +1858,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@bccampus/media-kit@npm:^0.1.0":
+  version: 0.1.0
+  resolution: "@bccampus/media-kit@npm:0.1.0"
+  peerDependencies:
+    react: ^18.2.0
+    react-dom: ^18.2.0
+  checksum: 10c0/43e3fa5295ed8e23391978a78695fa5e1349ee7c736563f72c04177843b8fdfed3f8c9627a60fde2352e99f142b9b0e4c76b422349b6748d50187528df366cf0
+  languageName: node
+  linkType: hard
+
 "@bccampus/react-composite@workspace:^, @bccampus/react-composite@workspace:package":
   version: 0.0.0-use.local
   resolution: "@bccampus/react-composite@workspace:package"
@@ -3004,18 +3014,6 @@ __metadata:
     react: ^18.2.0
     react-dom: ^18.2.0
   checksum: 10c0/73f844864a26cbb57aad81a46363506590b2bf271a58946259007376debe54411b5d980ed31d16396201c8e91812639c1a8d7c16c819c23f0ce577b935f67b2c
-  languageName: node
-  linkType: hard
-
-"@mantinex/mantine-logo@npm:^1.0.1":
-  version: 1.0.1
-  resolution: "@mantinex/mantine-logo@npm:1.0.1"
-  peerDependencies:
-    "@mantine/core": ">=7.0.0"
-    "@mantine/hooks": ">=7.0.0"
-    react: ^18.2.0
-    react-dom: ^18.2.0
-  checksum: 10c0/d1628195eaf6681c4366c0154ee2e3adf1b863432ab15e6285a3f33ffbb33a17ec0b5a90a9ced2429cbf2841d4de11f72320ca3d37578d6908a5b9f194fea2d3
   languageName: node
   linkType: hard
 
@@ -15193,13 +15191,13 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "react-composite-docs@workspace:docs"
   dependencies:
+    "@bccampus/media-kit": "npm:^0.1.0"
     "@bccampus/react-composite": "workspace:^"
     "@mantine/core": "npm:7.5.1"
     "@mantine/hooks": "npm:7.5.1"
     "@mantinex/demo": "npm:^1.1.1"
     "@mantinex/dev-icons": "npm:^1.0.2"
     "@mantinex/mantine-header": "npm:^1.0.2"
-    "@mantinex/mantine-logo": "npm:^1.0.1"
     "@mantinex/mantine-meta": "npm:^1.0.2"
     "@mantinex/shiki": "npm:^1.0.3"
     "@mdx-js/loader": "npm:^3.0.0"

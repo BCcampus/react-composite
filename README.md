@@ -1,4 +1,4 @@
-# @bccampus/manttinex-composite
+# @bccampus/react-composite
 
 > This package is still in the alpha stage and under development.
 
@@ -23,7 +23,7 @@ Documentation: https://bccampus.github.io/react-composite
 
   Reference: [Keyboard Interaction - Setting Focus and Navigating Inside Cells](https://www.w3.org/WAI/ARIA/apg/patterns/grid/#keyboardinteraction-settingfocusandnavigatinginsidecells)
 
-- Refactor the component to decouple selection and extension features from the core functions
+- Decouple selection and extension features from the core functions
 
 ```jsx
 <CompositeContext data={{ items }} focusOptions={{}}>
